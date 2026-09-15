@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Perfil del elenco de Astral Moon Café.">
+  <title>Perfil | Astral Moon Café</title>
+  <link rel="icon" type="image/png" href="assets/astral-moon-logo.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="profile-page">
+  <header class="shell nav"><a class="brand" href="index.html"><img class="brand-logo" src="assets/astral-moon-logo.png" alt=""> Astral Moon Café</a><div class="profile-actions"><a class="back" href="index.html#staff">← Volver al elenco</a><div class="language-switch" aria-label="Idioma / Language"><button type="button" data-lang="es">Español</button><button type="button" data-lang="en">English</button></div></div></header>
+  <main class="shell profile">
+    <article class="profile-card" id="profile-card">
+      <div class="profile-photo" id="profile-photo" aria-label="Espacio para fotografía"></div>
+      <div>
+        <div class="eyebrow" id="profile-role"></div>
+        <h1 class="gradient-text" id="profile-name"></h1>
+        <p class="bio" id="profile-bio"></p>
+        <div class="facts"><div class="fact"><span>ROL</span><strong id="fact-role"></strong></div><div class="fact"><span>ÁREA</span><strong id="fact-area"></strong></div><div class="fact"><span>USUARIO</span><strong id="fact-user"></strong></div><div class="fact"><span>CONSTELACIÓN</span><strong id="fact-constellation"></strong></div></div>
+        <h2 class="gallery-title">Galería estelar</h2>
+        <div class="gallery" id="profile-gallery"><div>Foto 01</div><div>Foto 02</div><div>Foto 03</div></div>
+      </div>
+    </article>
+    <div class="not-found" id="not-found" hidden><span>☾</span><h1>Estrella no encontrada</h1><p>Este perfil no está disponible.</p><a class="back" href="index.html#staff">Volver al elenco</a></div>
+  </main>
+  <footer>☾ Astral Moon Café · Perfil estelar ✦</footer>
+  <script src="staff.js"></script>
+  <script src="i18n.js"></script>
+  <script>
+    const slug = new URLSearchParams(location.search).get('id');
+    const person = window.ASTRAL_STAFF[slug];
+    function renderProfile() {
+    const lang = window.ASTRAL_I18N.language();
+    const t = value => window.ASTRAL_I18N.translate(value, lang);
+    if (!person) {
+      document.getElementById('profile-card').hidden = true;
+      document.getElementById('not-found').hidden = false;
+    } else {
+      const generic = lang === 'en' ? `${person.name} is part of ${t(person.area)} at Astral Moon Café. Soon you will be able to learn more about their personality, interests and story within the café.` : `${person.name} forma parte de ${person.area} en Astral Moon Café. Muy pronto podrás conocer más sobre su personalidad, sus gustos y su historia dentro del café.`;
+      document.title = `${person.name} | Astral Moon Café`;
+      document.querySelector('meta[name="description"]').content = lang === 'en' ? `Meet ${person.name}, ${t(person.role)} at Astral Moon Café.` : `Conoce a ${person.name}, ${person.role} de Astral Moon Café.`;
+      const photo = document.getElementById('profile-photo');
+      photo.replaceChildren();
+      if (person.photo) {
+        const image = document.createElement('img');
+        image.src = person.photo;
+        image.alt = person.name;
+        photo.appendChild(image);
+        photo.classList.add('has-photo');
+      } else {
+        photo.textContent = person.icon;
+        photo.classList.remove('has-photo');
+      }
+      document.getElementById('profile-photo').setAttribute('aria-label', lang === 'en' ? `Photo space for ${person.name}` : `Espacio para fotografía de ${person.name}`);
+      document.getElementById('profile-role').textContent = `✦ ${t(person.role)} ✦`;
+      document.getElementById('profile-name').textContent = person.name;
+      document.getElementById('profile-bio').textContent = (lang === 'en' && person.bioEn) ? person.bioEn : (person.bio || generic);
+      document.getElementById('fact-role').textContent = t(person.role);
+      document.getElementById('fact-area').textContent = t(person.area);
+      document.getElementById('fact-user').textContent = person.name;
+      document.getElementById('fact-constellation').textContent = t(person.constellation || (person.area === 'Maids Lunares' ? 'Luna' : person.area === 'Mayordomos Solares' ? 'Sol' : 'Estrella protectora'));
+      const gallery = document.getElementById('profile-gallery');
+      if (person.gallery) {
+        gallery.replaceChildren(...person.gallery.map((src, index) => {
+          const figure = document.createElement('figure');
+          const image = document.createElement('img');
+          image.src = src;
+          image.alt = lang === 'en' ? `${person.name} photo ${index + 1}` : `Foto ${index + 1} de ${person.name}`;
+          image.loading = 'lazy';
+          figure.appendChild(image);
+          return figure;
+        }));
+        gallery.classList.add('has-photos');
+        gallery.classList.toggle('landscape-gallery', person.galleryLayout === 'landscape');
+      }
+    }
+    }
+    window.addEventListener('astral-language-change', renderProfile);
+  </script>
+</body>
+</html>
